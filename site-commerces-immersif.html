@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0B0A07">
+<title>Boost Avis — Du comptoir à l'avis 5 étoiles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════════
+   BOOST AVIS — Landing narrative en 6 SCÈNES distinctes (scroll vertical)
+   + 7e zone "implantée" (marketing classique).  Direction sombre → chaud.
+   100% CSS/JS natif. Chaque scène se révèle à l'entrée (IntersectionObserver).
+   ════════════════════════════════════════════════════════════════ */
+:root{
+  --black:#0B0A07;--cream:#F5EDD8;--cream3:#FBF6EE;
+  --green:#3E7A1A;--green-name:#3f7d22;--green-dk:#1C3A0E;--green-deep:#112808;
+  --gold:#C8963E;--gold2:#E2B25A;--gold3:#F5D07A;
+  --ink:#1A1A14;--muted:#A8A29E;--muted2:#8B857E;
+  --green-txt:#34C759;--line:rgba(255,255,255,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--cream);font-family:'Inter',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--gold);color:#000}
+a{color:inherit;text-decoration:none}
+svg{display:block}
+
+.prog{position:fixed;top:0;left:0;height:3px;width:100%;z-index:2000;transform:scaleX(0);transform-origin:0 50%;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold3))}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px}
+
+/* ── NAV ── */
+nav{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:1500;display:flex;align-items:center;gap:8px;
+  padding:9px 9px 9px 18px;background:rgba(12,11,8,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--line);border-radius:100px;width:min(640px,calc(100% - 24px));transition:transform .45s cubic-bezier(.16,1,.3,1)}
+nav.hidden{transform:translateX(-50%) translateY(-160%)}
+.nav-brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.02em;margin-right:auto}
+.nav-logo{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:grid;place-items:center;color:#000;font-weight:900;font-size:14px;box-shadow:0 0 16px rgba(212,168,67,.4)}
+.nav-links{display:flex;gap:2px}
+.nav-links a{font-size:13px;color:var(--muted);padding:8px 13px;border-radius:100px;transition:color .2s,background .2s;font-weight:500}
+.nav-links a:hover{color:#fff;background:rgba(255,255,255,.06)}
+.nav-cta{font-size:13px;font-weight:700;color:#000;padding:9px 17px;border-radius:100px;background:linear-gradient(135deg,var(--gold),var(--gold2));box-shadow:0 0 20px rgba(212,168,67,.35);white-space:nowrap}
+@media(max-width:720px){.nav-links{display:none}}
+
+.btn{font-family:'Inter',sans-serif;font-size:15px;font-weight:700;padding:15px 28px;border-radius:100px;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:9px;transition:transform .3s cubic-bezier(.16,1,.3,1),box-shadow .3s}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2) 55%,var(--gold3));color:#000;box-shadow:0 8px 36px rgba(212,168,67,.32)}
+.btn-gold:hover{box-shadow:0 12px 48px rgba(212,168,67,.5);transform:translateY(-2px)}
+.btn-ghost{background:rgba(255,255,255,.04);color:var(--cream);border:1px solid var(--line)}
+.btn-ghost:hover{background:rgba(255,255,255,.09)}
+
+/* ══════════════ HERO ══════════════ */
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 90px;overflow:hidden}
+.hero-aura{position:absolute;width:720px;height:720px;border-radius:50%;top:-14%;left:50%;transform:translateX(-50%);background:radial-gradient(circle,rgba(212,168,67,.16),transparent 62%);filter:blur(16px);pointer-events:none}
+.hero-eyebrow{position:relative;display:inline-flex;align-items:center;gap:9px;font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold2);margin-bottom:26px;padding:7px 15px;border:1px solid rgba(212,168,67,.25);border-radius:100px;background:rgba(212,168,67,.05)}
+.hero-eyebrow .pulse{width:6px;height:6px;border-radius:50%;background:var(--green-txt);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,199,89,.5)}70%{box-shadow:0 0 0 8px rgba(52,199,89,0)}100%{box-shadow:0 0 0 0 rgba(52,199,89,0)}}
+.hero h1{position:relative;font-family:'Fraunces',serif;font-weight:300;font-size:clamp(40px,8.4vw,98px);line-height:.97;letter-spacing:-.03em;max-width:15ch;margin-bottom:24px}
+.hero h1 em{font-style:italic;font-weight:400;background:linear-gradient(115deg,var(--gold),var(--gold2),var(--gold3));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero h1 .word{display:inline-block;opacity:0;transform:translateY(36px) rotate(2deg);filter:blur(6px)}
+.hero .sub{position:relative;font-size:clamp(15px,2.1vw,19px);color:var(--muted);max-width:52ch;line-height:1.6;margin-bottom:36px;opacity:0;transform:translateY(18px)}
+.hero-cta{position:relative;display:flex;gap:13px;flex-wrap:wrap;justify-content:center;opacity:0;transform:translateY(18px)}
+.hero-scroll{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);display:flex;flex-direction:column;align-items:center;gap:9px;opacity:0;animation:fadeIn 1s 1.7s forwards}
+.hero-scroll .ln{width:1px;height:34px;background:linear-gradient(var(--gold2),transparent);animation:scrolln 2s infinite}
+@keyframes scrolln{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}50.1%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+@keyframes fadeIn{to{opacity:1}}
+
+/* ══════════════ STORY (fond continu sombre → chaud) ══════════════ */
+.story{position:relative;background:linear-gradient(180deg,#0B0A07 0%,#0d0c08 14%,#141a0c 40%,#1a2f10 66%,#244512 88%,#2d5a12 100%)}
+.story::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23s)'/%3E%3C/svg%3E");background-size:150px 150px}
+
+.scene{position:relative;z-index:2;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:80px 24px;text-align:center;overflow:hidden}
+.scene-glow{position:absolute;width:520px;height:520px;border-radius:50%;pointer-events:none;filter:blur(20px);opacity:.8}
+.g-gold{background:radial-gradient(circle,rgba(212,168,67,.14),transparent 62%)}
+.g-green{background:radial-gradient(circle,rgba(80,170,40,.16),transparent 62%)}
+
+.scene-num{position:absolute;top:clamp(40px,7vh,80px);left:50%;transform:translateX(-50%);font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(90px,20vw,200px);line-height:1;color:rgba(245,237,216,.05);pointer-events:none;user-select:none}
+
+.scene-stage{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;gap:26px;width:min(560px,100%)}
+.cap{max-width:30ch}
+.cap .step{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold2);margin-bottom:12px;display:flex;align-items:center;gap:10px;justify-content:center}
+.cap .step::before,.cap .step::after{content:'';width:20px;height:1px;background:rgba(212,168,67,.4)}
+.cap h2{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(26px,5vw,46px);line-height:1.08;letter-spacing:-.02em}
+.cap h2 em{font-style:italic;color:var(--gold2)}
+.cap p{font-size:clamp(14px,1.8vw,16px);color:var(--muted);line-height:1.6;margin-top:12px;max-width:42ch;margin-inline:auto}
+
+/* — Révélation à l'entrée — */
+.r{opacity:0;transform:translateY(34px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1)}
+.scene.in .r,.in>.r{opacity:1;transform:none}
+.r.d1{transition-delay:.1s}.r.d2{transition-delay:.2s}.r.d3{transition-delay:.3s}
+
+/* ══════════════ CARTE NFC (portrait ~2×5 cm, d'après la vraie carte) ══════════════ */
+.nfc{position:relative;width:clamp(150px,40vw,196px);aspect-ratio:2/4.6;border-radius:14px;
+  background:linear-gradient(170deg,#15140e 0%,#0b0a07 55%,#100f0a 100%);
+  border:1px solid rgba(212,168,67,.45);
+  box-shadow:0 26px 64px rgba(0,0,0,.6),0 0 40px rgba(212,168,67,.14),inset 0 1px 0 rgba(255,255,255,.07);
+  padding:15px 13px 13px;display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--cream);overflow:hidden}
+.nfc::before{content:'';position:absolute;inset:0;border-radius:14px;pointer-events:none;background:radial-gradient(120% 60% at 20% 6%,rgba(255,255,255,.08),transparent 42%)}
+.nfc-wheat{color:var(--gold2);opacity:.9;margin-bottom:6px}
+.nfc-name{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(15px,3.6vw,19px);line-height:1;letter-spacing:.02em;color:#5a9e2e;text-shadow:0 0 14px rgba(80,160,40,.25)}
+.nfc-stars{color:var(--gold2);font-size:9px;letter-spacing:2.5px;margin:7px 0 5px}
+.nfc-slogan{font-family:'Fraunces',serif;font-style:italic;font-size:10px;color:var(--gold2);opacity:.85;margin-bottom:11px;position:relative;padding-top:7px}
+.nfc-slogan::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:30px;height:1px;background:rgba(212,168,67,.4)}
+.nfc-ring{width:clamp(52px,15vw,68px);height:clamp(52px,15vw,68px);border-radius:50%;border:1.5px solid rgba(212,168,67,.55);display:grid;place-items:center;color:var(--gold2);margin-bottom:9px}
+.nfc-ring svg{width:54%;height:54%}
+.nfc-approach{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--cream)}
+.nfc-approach span{display:block;font-size:8px;font-weight:600;letter-spacing:.14em;color:var(--muted);margin-top:2px}
+.nfc-offer{margin-top:11px;width:100%;border:1px solid rgba(212,168,67,.4);border-radius:9px;padding:7px 6px;display:flex;align-items:center;justify-content:center;gap:6px;color:var(--gold2)}
+.nfc-offer svg{width:16px;height:16px;flex-shrink:0}
+.nfc-offer b{font-size:9.5px;font-weight:800;letter-spacing:.04em;color:var(--gold3);line-height:1.1;text-align:left}
+.nfc-offer b span{display:block;font-size:7.5px;font-weight:600;color:var(--muted);letter-spacing:.1em}
+.nfc-foot{margin-top:auto;padding-top:10px;font-size:9px;font-weight:700;letter-spacing:.16em;color:rgba(245,237,216,.78);text-transform:uppercase}
+.nfc-foot::before{content:'❦';display:block;color:rgba(212,168,67,.45);font-size:9px;margin-bottom:5px}
+/* flottement doux + lueur sous la carte */
+.nfc-wrap{position:relative;display:grid;place-items:center}
+.nfc-wrap::after{content:'';position:absolute;bottom:-26px;width:60%;height:24px;border-radius:50%;background:rgba(0,0,0,.5);filter:blur(12px);z-index:-1}
+.float{animation:float 5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-12px) rotate(2deg)}}
+
+/* — pictos d'ondes (scan) — */
+.tap{position:relative;display:grid;place-items:center;gap:18px}
+.tap-waves{position:absolute;right:-6px;top:50%;transform:translateY(-50%)}
+.scan-pulse{position:absolute;inset:-18px;border-radius:18px;border:1.5px solid rgba(52,199,89,.4)}
+.scene.in .scan-pulse{animation:scan 2.2s ease-out infinite}
+@keyframes scan{0%{transform:scale(.85);opacity:.7}100%{transform:scale(1.25);opacity:0}}
+
+/* ══════════════ TÉLÉPHONE ══════════════ */
+.device{position:relative;width:clamp(220px,62vw,272px);aspect-ratio:9/19;border-radius:36px;background:linear-gradient(160deg,#15130f,#080705);padding:8px;border:1px solid rgba(255,255,255,.1);box-shadow:0 46px 90px rgba(0,0,0,.6),inset 0 0 0 5px #000}
+.device::before{content:'';position:absolute;top:13px;left:50%;transform:translateX(-50%);width:74px;height:6px;border-radius:99px;background:#000;z-index:5}
+.screen{position:relative;width:100%;height:100%;border-radius:29px;overflow:hidden;background:#3E7A1A}
+.gbg{position:absolute;inset:0;background:#3E7A1A;background-image:radial-gradient(ellipse 80% 55% at 25% 22%,rgba(120,200,45,.5),transparent 58%),radial-gradient(ellipse 55% 65% at 82% 78%,rgba(20,75,5,.6),transparent 52%)}
+.scr-pad{position:relative;z-index:1;padding:20px 15px;display:flex;flex-direction:column;height:100%;color:var(--cream)}
+
+.cl-name{font-family:'Fraunces',serif;font-style:italic;font-size:12px;text-align:center;margin-bottom:6px}
+.cl-stars{text-align:center;color:var(--gold3);letter-spacing:3px;font-size:13px;margin-bottom:13px}
+.cl-card{background:rgba(251,246,238,.97);border-radius:16px;padding:15px 13px;text-align:center;box-shadow:0 12px 26px rgba(0,0,0,.26)}
+.cl-card .t{font-family:'Fraunces',serif;font-size:15px;color:var(--ink);font-weight:600;margin-bottom:5px}
+.cl-card .t em{font-style:italic;color:var(--gold)}
+.cl-card .d{font-size:10px;color:var(--muted2);line-height:1.5;margin-bottom:12px}
+.cl-btn{display:block;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--ink);font-weight:700;font-size:11px;padding:10px;border-radius:10px}
+
+.rw{position:absolute;inset:0;display:grid;place-items:center;padding:18px}
+.rw-card{width:100%;background:rgba(251,246,238,.97);border-radius:16px;padding:20px 15px;text-align:center;box-shadow:0 14px 30px rgba(0,0,0,.3)}
+.rw-emo{font-size:46px;margin-bottom:8px;display:block}
+.scene.in .rw-emo{animation:pop .6s .25s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pop{0%{transform:scale(0) rotate(-12deg)}100%{transform:scale(1)}}
+.rw-badge{display:inline-block;background:rgba(200,150,62,.12);border:1px solid rgba(200,150,62,.3);color:var(--gold);font-size:8.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 11px;border-radius:99px;margin-bottom:8px}
+.rw-name{font-family:'Fraunces',serif;font-size:17px;color:var(--ink);margin-bottom:12px}
+.rw-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--ink);font-weight:700;font-size:11px;padding:10px;border-radius:10px}
+
+/* chip avis flottant (scène 3) */
+.chip{position:absolute;display:flex;align-items:center;gap:8px;background:rgba(20,18,14,.92);border:1px solid rgba(212,168,67,.3);border-radius:14px;padding:9px 13px;box-shadow:0 16px 36px rgba(0,0,0,.45);backdrop-filter:blur(6px)}
+.chip svg{width:18px;height:18px;color:#1a73e8}
+.chip .x{font-size:11px;line-height:1.2}
+.chip .x b{display:block;color:var(--cream);font-weight:700}
+.chip .x i{color:var(--gold3);font-style:normal;letter-spacing:1px;font-size:10px}
+
+/* validation vendeur (scène 4) */
+.vendor{width:min(330px,86vw);background:rgba(18,16,12,.92);border:1px solid rgba(245,237,216,.12);border-radius:20px;padding:22px 20px;box-shadow:0 36px 80px rgba(0,0,0,.55)}
+.vendor .vh{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.vcode{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
+.vcode span{width:32px;height:42px;border-radius:9px;background:rgba(245,237,216,.06);border:1px solid rgba(245,237,216,.14);display:grid;place-items:center;font-family:'DM Mono',monospace;font-size:19px;font-weight:500;color:var(--cream)}
+.vok{display:flex;align-items:center;justify-content:center;gap:9px;padding:12px;border-radius:12px;background:rgba(52,199,89,.12);border:1px solid rgba(52,199,89,.35);color:var(--green-txt);font-weight:700;font-size:13.5px}
+.vok svg{width:17px;height:17px}
+
+/* fidélité (scène 5) — tampons */
+.fid{position:absolute;inset:0;display:flex;flex-direction:column;padding:18px 15px;color:var(--cream)}
+.fid-h{text-align:center;font-family:'Fraunces',serif;font-style:italic;font-size:13px;margin-bottom:3px}
+.fid-sub{text-align:center;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,237,216,.55);margin-bottom:12px}
+.fid-count{text-align:center;font-family:'Fraunces',serif;font-weight:600;font-size:38px;color:var(--gold3);line-height:1}
+.fid-count span{font-size:19px;color:rgba(245,237,216,.5)}
+.fid-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:15px}
+.st{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;background:rgba(245,237,216,.07);border:1.5px dashed rgba(200,150,62,.4);color:rgba(245,237,216,.5);
+  transition:background .4s ease,border-color .4s ease,transform .4s ease}
+.st.full{background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold3));border-style:solid;border-color:transparent;box-shadow:0 3px 9px rgba(200,150,62,.4)}
+.st.full::after{content:'🥐';font-size:13px;filter:saturate(0) brightness(2.6)}
+.st.rw2{border:2px solid var(--gold);background:rgba(200,150,62,.12)}
+.st.rw2::after{content:'🎁';font-size:14px}
+.st.rw2.full{background:linear-gradient(135deg,var(--gold),var(--gold3))}
+.st.rw2.full::after{filter:none}
+.fid-msg{text-align:center;font-size:10.5px;color:rgba(245,237,216,.72);margin-top:auto;padding-top:11px}
+.fid-msg b{color:var(--gold3)}
+
+/* dashboard (scène 6) */
+.dash{position:absolute;inset:0;background:linear-gradient(170deg,#11130f,#0a0b08);padding:18px 14px;display:flex;flex-direction:column;color:#F3F4F6}
+.dash-h{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.dash-mk{width:28px;height:28px;border-radius:8px;background:linear-gradient(150deg,var(--gold),var(--gold2));display:grid;place-items:center;color:#000;font-weight:800;font-size:12px}
+.dash-tt{font-size:11.5px;font-weight:700}.dash-tt span{display:block;font-size:8px;color:#8a8f98;font-weight:500}
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kc{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:11px}
+.kc .l{font-size:8px;color:#9aa1ad;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.kc .v{font-family:'Fraunces',serif;font-size:24px;font-weight:600;line-height:1;color:#fff}
+.kc .v.g{color:var(--gold3)}
+.dash-sec{font-size:8px;color:#9aa1ad;text-transform:uppercase;letter-spacing:.1em;margin:14px 0 8px}
+.bar{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.bar .e{width:24px;height:24px;border-radius:7px;background:rgba(255,255,255,.05);display:grid;place-items:center;font-size:12px}
+.bar .tk{flex:1;height:6px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.bar .fl{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--gold3));width:0;transition:width 1s cubic-bezier(.16,1,.3,1)}
+.scene.in .bar .fl{width:var(--w)}
+.bar .n{font-size:11px;font-weight:700;color:#fff;min-width:18px;text-align:right}
+
+/* halo derrière le device */
+.halo{position:absolute;width:118%;height:118%;left:-9%;top:-9%;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(212,168,67,.16),transparent 60%);filter:blur(8px)}
+
+/* ══════════════ INTERLUDES (illustrations entre les scènes) ══════════════ */
+.interlude{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 24px 12px;color:var(--gold2)}
+.interlude::before{content:'';width:1px;height:46px;background:linear-gradient(rgba(212,168,67,0),rgba(212,168,67,.5));margin-bottom:4px}
+.interlude::after{content:'';width:1px;height:46px;background:linear-gradient(rgba(212,168,67,.5),rgba(212,168,67,0));margin-top:4px}
+.il-ic{width:38px;height:38px;display:grid;place-items:center;border:1px solid rgba(212,168,67,.3);border-radius:50%;background:rgba(212,168,67,.06)}
+.il-ic svg{width:20px;height:20px}
+.il-txt{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,237,216,.5)}
+
+/* ══════════════ ZONE 7 — IMPLANTÉE (marketing classique) ══════════════ */
+.warm{position:relative;z-index:2;background:linear-gradient(180deg,#2d5a12 0%,#1f4310 40%,#112808 100%)}
+.warm::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.5;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23w)'/%3E%3C/svg%3E");background-size:170px 170px}
+section.block{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:clamp(64px,10vh,110px) 24px}
+.eyebrow{font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--gold2);display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.eyebrow::before{content:'';width:26px;height:1px;background:var(--gold)}
+.h2{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(30px,5.2vw,54px);line-height:1.05;letter-spacing:-.03em;max-width:18ch;margin-bottom:18px;color:var(--cream)}
+.h2 em{font-style:italic;color:var(--gold2)}
+.lead{font-size:17px;color:rgba(245,237,216,.66);max-width:56ch;line-height:1.65}
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}.reveal.d4{transition-delay:.32s}
+
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:1000px;margin:0 auto;text-align:center}
+@media(max-width:760px){.stats-grid{grid-template-columns:repeat(2,1fr);gap:32px}}
+.stat-v{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(40px,6.4vw,70px);line-height:1;background:linear-gradient(135deg,var(--gold2),var(--gold3));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.stat-l{font-size:14px;color:rgba(245,237,216,.6);margin-top:10px}
+
+.payoff{max-width:1140px;margin:0 auto;padding:0 24px clamp(56px,8vh,90px)}
+.payoff-card{position:relative;border-radius:28px;overflow:hidden;padding:clamp(32px,5vw,56px);background:linear-gradient(135deg,rgba(200,150,62,.16),rgba(245,237,216,.05));border:1px solid rgba(200,150,62,.3);display:grid;grid-template-columns:1.1fr 1fr;gap:38px;align-items:center}
+@media(max-width:820px){.payoff-card{grid-template-columns:1fr;gap:28px}}
+.payoff h2{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(26px,3.6vw,40px);line-height:1.1;color:var(--cream);letter-spacing:-.02em;margin-bottom:14px}
+.payoff h2 em{font-style:italic;color:var(--gold3)}
+.payoff p{font-size:15px;color:rgba(245,237,216,.7);line-height:1.6}
+.payoff-stamps{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.payoff-stamps .ps{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-size:15px;background:linear-gradient(135deg,var(--gold),var(--gold2));box-shadow:0 4px 12px rgba(200,150,62,.4)}
+.payoff-stamps .ps:last-child{background:rgba(245,237,216,.08);border:2px solid var(--gold3)}
+
+.benefits{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:48px}
+@media(max-width:760px){.benefits{grid-template-columns:1fr}}
+.benefit{padding:26px;border-radius:18px;background:rgba(245,237,216,.05);border:1px solid rgba(245,237,216,.1);transition:background .3s,border-color .3s,transform .3s}
+.benefit:hover{background:rgba(245,237,216,.08);border-color:rgba(200,150,62,.4);transform:translateY(-3px)}
+.benefit .b-top{display:flex;align-items:center;gap:12px;margin-bottom:11px}
+.benefit .b-ic{width:34px;height:34px;border-radius:10px;background:rgba(200,150,62,.14);border:1px solid rgba(200,150,62,.3);display:grid;place-items:center;color:var(--gold2)}
+.benefit h3{font-size:17px;font-weight:700;color:var(--cream)}
+.benefit p{font-size:14px;color:rgba(245,237,216,.62);line-height:1.6}
+
+.testimonials{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+@media(max-width:860px){.testimonials{grid-template-columns:1fr}}
+.tcard{padding:30px 26px;border-radius:22px;background:rgba(245,237,216,.05);border:1px solid rgba(245,237,216,.1);transition:transform .4s,border-color .4s}
+.tcard:hover{transform:translateY(-4px);border-color:rgba(200,150,62,.35)}
+.tcard-stars{color:var(--gold3);font-size:13px;letter-spacing:3px;margin-bottom:14px}
+.tcard-quote{font-size:15px;color:rgba(245,237,216,.78);line-height:1.65;margin-bottom:22px}
+.tcard-author{display:flex;align-items:center;gap:12px;border-top:1px solid rgba(245,237,216,.12);padding-top:18px}
+.tcard-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(200,150,62,.3),rgba(200,150,62,.1));border:1px solid rgba(200,150,62,.3);display:grid;place-items:center;font-weight:700;font-size:14px;color:var(--gold2)}
+.tcard-info strong{display:block;font-size:14px;color:var(--cream)}
+.tcard-info span{font-size:12px;color:rgba(245,237,216,.5)}
+
+.cta-sec{position:relative;z-index:2;max-width:740px;margin:0 auto;padding:0 24px clamp(80px,12vh,120px)}
+.cta-card{position:relative;padding:clamp(40px,6vw,60px) clamp(26px,5vw,44px);border-radius:30px;overflow:hidden;text-align:center;background:linear-gradient(160deg,rgba(245,237,216,.08),rgba(245,237,216,.02));border:1px solid rgba(200,150,62,.28)}
+.cta-card::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:460px;height:460px;background:radial-gradient(circle,rgba(200,150,62,.2),transparent 60%);pointer-events:none}
+.cta-card .inner{position:relative;z-index:1}
+.form{display:flex;flex-direction:column;gap:13px;max-width:430px;margin:30px auto 0}
+.form input,.form textarea{width:100%;padding:15px 17px;border-radius:14px;background:rgba(245,237,216,.06);border:1px solid rgba(245,237,216,.14);color:var(--cream);font-family:'Inter',sans-serif;font-size:15px;transition:border-color .25s,background .25s}
+.form input::placeholder,.form textarea::placeholder{color:rgba(245,237,216,.4)}
+.form input:focus,.form textarea:focus{outline:none;border-color:rgba(200,150,62,.55);background:rgba(245,237,216,.09)}
+.form textarea{resize:vertical;min-height:88px}
+.form .btn-gold{justify-content:center;width:100%}
+.form-note{font-size:12px;color:rgba(245,237,216,.45);margin-top:13px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+footer{position:relative;z-index:2;border-top:1px solid rgba(245,237,216,.1);padding:40px 24px;text-align:center;background:var(--green-deep)}
+.foot-brand{display:inline-flex;align-items:center;gap:9px;font-weight:800;font-size:16px;margin-bottom:10px;color:var(--cream)}
+footer p{font-size:13px;color:rgba(245,237,216,.5)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important}
+  .r,.reveal{opacity:1!important;transform:none!important;transition:none!important}
+  .hero h1 .word,.hero .sub,.hero-cta{opacity:1!important;transform:none!important;filter:none!important}
+  .bar .fl{width:var(--w)!important}
+  .scroll-snap{scroll-snap-type:none}
+}
+</style>
+</head>
+<body>
+
+<div class="prog" id="prog"></div>
+<div class="grain"></div>
+
+<nav id="nav" aria-label="Navigation principale">
+  <div class="nav-brand"><span class="nav-logo">B</span>Boost Avis</div>
+  <div class="nav-links">
+    <a href="#story">L'histoire</a>
+    <a href="#chiffres">Les chiffres</a>
+    <a href="#avantages">Avantages</a>
+  </div>
+  <a href="#contact" class="nav-cta">Essai 14 jours</a>
+</nav>
+
+<!-- ════════ HERO ════════ -->
+<header class="hero">
+  <div class="hero-aura"></div>
+  <div class="hero-eyebrow"><span class="pulse"></span>Avis Google · Fidélité · NFC</div>
+  <h1 id="heroTitle"><span class="word">Une</span> <span class="word">carte.</span> <span class="word">Un</span> <span class="word">geste.</span><br><span class="word"><em>Des&nbsp;avis&nbsp;qui&nbsp;changent&nbsp;tout.</em></span></h1>
+  <p class="sub" id="heroSub">Suivez le parcours, du comptoir jusqu'à l'avis 5 étoiles et la fidélité. Faites défiler : chaque étape se dévoile, scène après scène.</p>
+  <div class="hero-cta" id="heroCta">
+    <a href="#contact" class="btn btn-gold">Tester gratuitement <span aria-hidden="true">→</span></a>
+    <a href="#story" class="btn btn-ghost">Voir l'histoire</a>
+  </div>
+  <div class="hero-scroll" aria-hidden="true"><span>Défiler</span><span class="ln"></span></div>
+</header>
+
+<!-- ════════ STORY : 6 SCÈNES ════════ -->
+<main class="story" id="story">
+
+  <!-- SCÈNE 1 -->
+  <section class="scene" id="s1" aria-label="Temps 1 : la carte est remise en caisse">
+    <div class="scene-glow g-gold" style="top:18%;left:50%;transform:translateX(-50%)"></div>
+    <div class="scene-num">1</div>
+    <div class="scene-stage">
+      <div class="nfc-wrap r" data-par="0.04">
+        <div class="nfc float">
+          <svg class="nfc-wheat" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8"/><path d="M12 8c0-2 1.5-4 4-4 0 2-1.5 4-4 4z"/><path d="M12 8c0-2-1.5-4-4-4 0 2 1.5 4 4 4z"/><path d="M12 13c0-2 1.5-3.5 4-3.5 0 2-1.5 3.5-4 3.5z"/><path d="M12 13c0-2-1.5-3.5-4-3.5 0 2 1.5 3.5 4 3.5z"/></svg>
+          <div class="nfc-name">VOTRE<br>COMMERCE</div>
+          <div class="nfc-stars">★★★★★</div>
+          <div class="nfc-slogan">Votre avis compte</div>
+          <div class="nfc-ring">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="8" height="15" rx="1.6"/><path d="M11 15h.01"/><path d="M18 7a5 5 0 0 1 0 7"/><path d="M20.5 5a8 8 0 0 1 0 11"/></svg>
+          </div>
+          <div class="nfc-approach">APPROCHEZ<span>VOTRE TÉLÉPHONE</span></div>
+          <div class="nfc-offer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14c0-3 3-5 7-5s7 2 7 5"/><path d="M3 14h18l-1.5 5h-15z"/></svg>
+            <b>1 GOURMANDISE<span>OFFERTE</span></b>
+          </div>
+          <div class="nfc-foot">Boulangerie · NFC</div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="step r d1">Temps 1</div>
+        <h2 class="r d1">Tout commence <em>en caisse.</em></h2>
+        <p class="r d2">Le client achète sa baguette. Le boulanger lui remet une petite carte NFC — le début de l'expérience Boost Avis.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="interlude" aria-hidden="true">
+    <div class="il-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15 15 4a3 3 0 0 1 4 4L8 19c-1.5 1.5-4 1.5-4 1.5s0-2.5 0-4z"/><path d="M9 9l6 6"/></svg></div>
+    <div class="il-txt">Glissée dans le sachet</div>
+  </div>
+
+  <!-- SCÈNE 2 -->
+  <section class="scene" id="s2" aria-label="Temps 2 : le scan">
+    <div class="scene-glow g-gold" style="top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+    <div class="scene-num">2</div>
+    <div class="scene-stage">
+      <div class="tap r" data-par="0.05">
+        <div class="nfc-wrap">
+          <div class="nfc float" style="transform:scale(.92)">
+            <svg class="nfc-wheat" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8"/><path d="M12 8c0-2 1.5-4 4-4 0 2-1.5 4-4 4z"/><path d="M12 8c0-2-1.5-4-4-4 0 2 1.5 4 4 4z"/></svg>
+            <div class="nfc-name">VOTRE<br>COMMERCE</div>
+            <div class="nfc-stars">★★★★★</div>
+            <div class="nfc-ring" style="margin-top:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="8" height="15" rx="1.6"/><path d="M11 15h.01"/><path d="M18 7a5 5 0 0 1 0 7"/></svg></div>
+            <div class="nfc-approach" style="margin-top:8px">APPROCHEZ<span>VOTRE TÉLÉPHONE</span></div>
+            <div class="nfc-foot">Boulangerie · NFC</div>
+            <div class="scan-pulse"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="step r d1">Temps 2</div>
+        <h2 class="r d1">Un simple <em>geste.</em></h2>
+        <p class="r d2">Il approche son téléphone de la carte. Pas d'application, pas de friction — un contact suffit à tout déclencher.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="interlude" aria-hidden="true">
+    <div class="il-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0 1 14 0"/><path d="M8.5 12a3.5 3.5 0 0 1 7 0"/><circle cx="12" cy="12" r="1"/></svg></div>
+    <div class="il-txt">Connexion instantanée</div>
+  </div>
+
+  <!-- SCÈNE 3 -->
+  <section class="scene" id="s3" aria-label="Temps 3 : avis et récompense">
+    <div class="scene-glow g-green" style="top:46%;left:50%;transform:translate(-50%,-50%)"></div>
+    <div class="scene-num">3</div>
+    <div class="scene-stage">
+      <div class="r" data-par="0.04" style="position:relative">
+        <div class="device">
+          <div class="halo"></div>
+          <div class="screen">
+            <div class="gbg"></div>
+            <div class="rw">
+              <div class="rw-card">
+                <span class="rw-emo">🥐</span>
+                <span class="rw-badge">Vous avez gagné</span>
+                <div class="rw-name">Croissant Artisanal</div>
+                <div class="rw-btn">Récupérer mon gain</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chip r d2" style="top:8%;right:-8px">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7H7.9v-2.9h2.54V9.85c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7C18.34 21.21 22 17.06 22 12.06z" fill="#1a73e8"/></svg>
+          <div class="x"><b>Avis publié</b><i>★★★★★ sur Google</i></div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="step r d1">Temps 3</div>
+        <h2 class="r d1">Un avis, <em>une récompense.</em></h2>
+        <p class="r d2">Sur son téléphone : il laisse un avis Google, ouvre son cadeau et gagne un croissant. Le sourire en plus.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="interlude" aria-hidden="true">
+    <div class="il-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 11h18"/><path d="M12 8V5a2 2 0 0 0-2-2H9"/><path d="M12 8V5a2 2 0 0 1 2-2h1"/></svg></div>
+    <div class="il-txt">Quelques jours plus tard…</div>
+  </div>
+
+  <!-- SCÈNE 4 -->
+  <section class="scene" id="s4" aria-label="Temps 4 : validation en caisse">
+    <div class="scene-glow g-green" style="top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+    <div class="scene-num">4</div>
+    <div class="scene-stage">
+      <div class="vendor r" data-par="0.03">
+        <div class="vh">Validation en caisse</div>
+        <div class="vcode"><span>4</span><span>7</span><span>5</span><span>5</span><span>8</span><span>3</span></div>
+        <div class="vok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Gain validé · Croissant offert</div>
+      </div>
+      <div class="cap">
+        <div class="step r d1">Temps 4</div>
+        <h2 class="r d1">Il revient. Vous <em>validez.</em></h2>
+        <p class="r d2">Il repasse en boutique. Vous entrez son code en caisse, vous offrez le gain — et sa carte re-scanne pour cumuler.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="interlude" aria-hidden="true">
+    <div class="il-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.6a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.07a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.85a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+    <div class="il-txt">La fidélité grandit</div>
+  </div>
+
+  <!-- SCÈNE 5 -->
+  <section class="scene" id="s5" aria-label="Temps 5 : carte de fidélité">
+    <div class="scene-glow g-green" style="top:48%;left:50%;transform:translate(-50%,-50%)"></div>
+    <div class="scene-num">5</div>
+    <div class="scene-stage">
+      <div class="r" data-par="0.04" style="position:relative">
+        <div class="device">
+          <div class="halo"></div>
+          <div class="screen">
+            <div class="gbg"></div>
+            <div class="fid">
+              <div class="fid-h">Carte de fidélité</div>
+              <div class="fid-sub">1 point par passage</div>
+              <div class="fid-count" id="fidCount">0<span> / 10</span></div>
+              <div class="fid-grid" id="fidGrid">
+                <div class="st">1</div><div class="st">2</div><div class="st">3</div><div class="st">4</div><div class="st">5</div>
+                <div class="st">6</div><div class="st">7</div><div class="st">8</div><div class="st">9</div><div class="st rw2">10</div>
+              </div>
+              <div class="fid-msg" id="fidMsg">Plus que <b>10 passages</b> avant votre cadeau</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="step r d1">Temps 5</div>
+        <h2 class="r d1">La fidélité <em>se construit.</em></h2>
+        <p class="r d2">Un point à chaque passage. Au 10ᵉ, un cadeau l'attend. Il a, enfin, une vraie raison de revenir.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="interlude" aria-hidden="true">
+    <div class="il-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></div>
+    <div class="il-txt">Côté commerçant</div>
+  </div>
+
+  <!-- SCÈNE 6 -->
+  <section class="scene" id="s6" aria-label="Temps 6 : tableau de bord">
+    <div class="scene-glow g-gold" style="top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+    <div class="scene-num">6</div>
+    <div class="scene-stage">
+      <div class="r" data-par="0.04" style="position:relative">
+        <div class="device">
+          <div class="halo"></div>
+          <div class="screen">
+            <div class="dash">
+              <div class="dash-h"><div class="dash-mk">F</div><div class="dash-tt">Votre commerce<span>Tableau de bord</span></div></div>
+              <div class="kpi">
+                <div class="kc"><div class="l">Avis ce mois</div><div class="v g">47</div></div>
+                <div class="kc"><div class="l">Passages</div><div class="v">312</div></div>
+                <div class="kc"><div class="l">Clients fidèles</div><div class="v">68</div></div>
+                <div class="kc"><div class="l">Gains remis</div><div class="v g">54</div></div>
+              </div>
+              <div class="dash-sec">Récompenses distribuées</div>
+              <div class="bar"><span class="e">🥐</span><span class="tk"><span class="fl" style="--w:88%"></span></span><span class="n">39</span></div>
+              <div class="bar"><span class="e">🥖</span><span class="tk"><span class="fl" style="--w:55%"></span></span><span class="n">24</span></div>
+              <div class="bar"><span class="e">🎁</span><span class="tk"><span class="fl" style="--w:30%"></span></span><span class="n">13</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="step r d1">Temps 6</div>
+        <h2 class="r d1">Vous, <em>aux commandes.</em></h2>
+        <p class="r d2">Avis, passages, clients fidèles, gains distribués : votre tableau de bord suit tout, en direct, depuis votre téléphone.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ════════ ZONE 7 — IMPLANTÉE DANS LE SITE (pas de téléphone) ════════ -->
+<div class="warm">
+  <section class="block" style="text-align:center;padding-bottom:0">
+    <div class="eyebrow reveal" style="justify-content:center">La fin de l'histoire, le début des résultats</div>
+    <h2 class="h2 reveal d1" style="margin:0 auto">Ce que ça change, <em>concrètement.</em></h2>
+  </section>
+
+  <section class="block" id="chiffres" aria-label="Chiffres clés">
+    <div class="stats-grid">
+      <div class="reveal d1"><div class="stat-v" data-count="47">0</div><div class="stat-l">avis collectés / mois</div></div>
+      <div class="reveal d2"><div class="stat-v" data-count="68" data-suffix="%">0</div><div class="stat-l">de clients qui reviennent</div></div>
+      <div class="reveal d3"><div class="stat-v" data-count="72" data-suffix="h">0</div><div class="stat-l">avant les premiers avis</div></div>
+      <div class="reveal d4"><div class="stat-v" data-count="30" data-suffix="min">0</div><div class="stat-l">pour tout installer</div></div>
+    </div>
+  </section>
+
+  <div class="payoff">
+    <div class="payoff-card reveal">
+      <div>
+        <div class="eyebrow">Le cercle vertueux</div>
+        <h2>Au 10ᵉ passage, le client <em>gagne son cadeau.</em></h2>
+        <p>Et vous, vous gagnez des avis, des visites répétées et une fiche Google qui grimpe. Chaque tampon est une vente de plus, chaque avis un client de demain.</p>
+      </div>
+      <div class="payoff-stamps" aria-hidden="true">
+        <span class="ps">🥐</span><span class="ps">🥐</span><span class="ps">🥐</span><span class="ps">🥐</span><span class="ps">🥐</span>
+        <span class="ps">🥐</span><span class="ps">🥐</span><span class="ps">🥐</span><span class="ps">🥐</span><span class="ps">🎁</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="block" id="avantages">
+    <div class="eyebrow reveal">Ce que vous y gagnez</div>
+    <h2 class="h2 reveal d1">Pensé pour le commerçant, <em>pas pour les ingénieurs.</em></h2>
+    <div class="benefits">
+      <div class="benefit reveal d1"><div class="b-top"><span class="b-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><h3>Installé en 30 minutes</h3></div><p>On vient sur place, on pose la carte, on forme votre équipe. Vous n'avez rien à configurer.</p></div>
+      <div class="benefit reveal d2"><div class="b-top"><span class="b-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></span><h3>100% conforme Google</h3></div><p>L'avis reste optionnel et n'est jamais conditionné au gain. Vous êtes dans les règles.</p></div>
+      <div class="benefit reveal d1"><div class="b-top"><span class="b-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><h3>Rentable dès la 1ʳᵉ semaine</h3></div><p>Le coût des lots est dérisoire face aux clients qui reviennent et aux avis gagnés.</p></div>
+      <div class="benefit reveal d2"><div class="b-top"><span class="b-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v8H4v-8"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span><h3>14 jours offerts, sans CB</h3></div><p>Vous testez sur vos vrais clients. Si ça ne décolle pas, vous arrêtez. Zéro risque.</p></div>
+    </div>
+  </section>
+
+  <section class="block" id="temoignages" aria-label="Témoignages">
+    <div class="eyebrow reveal">Ils nous font confiance</div>
+    <h2 class="h2 reveal d1">Des commerçants qui <em>parlent à leur place.</em></h2>
+    <div class="testimonials">
+      <div class="tcard reveal d1"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">Avant Boost Avis, on avait 34 avis. En 6 semaines, 107. On est passé numéro 1 du quartier — sans un centime de pub.</p><div class="tcard-author"><div class="tcard-avatar">S</div><div class="tcard-info"><strong>Sophie M.</strong><span>Boulangerie Dorée, Paris 11e</span></div></div></div>
+      <div class="tcard reveal d2"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">Les clients jouent avec le sourire. L'avis suit naturellement. En 3 mois : +81 avis, +23% de réservations.</p><div class="tcard-author"><div class="tcard-avatar">M</div><div class="tcard-info"><strong>Marc L.</strong><span>Restaurant Le Bonheur, Lyon</span></div></div></div>
+      <div class="tcard reveal d3"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">La validation prend 5 secondes, mon équipe adore. Et le tableau de bord me dit qui revient et à quelle fréquence.</p><div class="tcard-author"><div class="tcard-avatar">I</div><div class="tcard-info"><strong>Isabelle R.</strong><span>Salon Villa Éclat, Bordeaux</span></div></div></div>
+    </div>
+  </section>
+
+  <section class="cta-sec" id="contact">
+    <div class="cta-card reveal">
+      <div class="inner">
+        <div class="eyebrow" style="justify-content:center">On s'occupe de tout</div>
+        <h2 class="h2" style="margin:0 auto 12px;text-align:center;font-size:clamp(26px,4.4vw,46px)">Prêt à voir votre fiche <em>décoller&nbsp;?</em></h2>
+        <p class="lead" style="margin:0 auto;text-align:center">Laissez vos coordonnées. On vous rappelle sous 24h pour planifier votre essai gratuit.</p>
+        <form class="form" id="contactForm" onsubmit="handleSubmit(event)" novalidate>
+          <label for="f-commerce" class="sr-only">Nom du commerce</label>
+          <input id="f-commerce" type="text" placeholder="Nom du commerce" autocomplete="organization" required>
+          <label for="f-prenom" class="sr-only">Votre prénom</label>
+          <input id="f-prenom" type="text" placeholder="Votre prénom" autocomplete="given-name" required>
+          <label for="f-tel" class="sr-only">Téléphone</label>
+          <input id="f-tel" type="tel" placeholder="Téléphone" autocomplete="tel" required>
+          <label for="f-msg" class="sr-only">Message (facultatif)</label>
+          <textarea id="f-msg" placeholder="Un message (facultatif)"></textarea>
+          <button type="submit" class="btn btn-gold" id="submitBtn">
+            <span id="btnText">Être recontacté</span>
+            <svg id="btnArrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <svg id="btnSpinner" style="display:none;animation:spin .8s linear infinite" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
+          </button>
+        </form>
+        <p class="form-note">Sans engagement · Réponse sous 24h · 14 jours gratuits</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="foot-brand"><span class="nav-logo">B</span>Boost Avis</div>
+    <p>Le système d'avis Google &amp; fidélité clé en main pour commerces de proximité.</p>
+    <p style="margin-top:8px">© 2026 Boost Avis · Conçu pour les artisans</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  /* ── Révélation des scènes à l'entrée ── */
+  const sceneIO = new IntersectionObserver((es)=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); if(e.target.id==='s5') fillFid(); sceneIO.unobserve(e.target); } });
+  },{threshold:.28});
+  document.querySelectorAll('.scene').forEach(s=>sceneIO.observe(s));
+
+  /* ── Révélation des blocs marketing ── */
+  const io = new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.16});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  /* ── Scène 5 : remplissage des tampons 0→10 ── */
+  let fidDone=false;
+  function fillFid(){
+    if(fidDone) return; fidDone=true;
+    const stamps=[...document.querySelectorAll('#fidGrid .st')];
+    const count=document.getElementById('fidCount'), msg=document.getElementById('fidMsg');
+    if(reduce){ stamps.forEach(s=>s.classList.add('full')); count.innerHTML='10<span> / 10</span>'; msg.innerHTML='🎉 <b>Cadeau débloqué&nbsp;!</b>'; return; }
+    let n=0;
+    const tick=()=>{
+      n++;
+      const s=stamps[n-1]; if(s) s.classList.add('full');
+      count.innerHTML=n+'<span> / 10</span>';
+      msg.innerHTML = n>=10 ? '🎉 <b>Cadeau débloqué&nbsp;!</b> Un croissant offert'
+        : 'Plus que <b>'+(10-n)+' passage'+((10-n)>1?'s':'')+'</b> avant votre cadeau';
+      if(n<10) setTimeout(tick,260);
+    };
+    setTimeout(tick,400);
+  }
+
+  /* ── Compteurs chiffrés ── */
+  const cio=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){
+      const el=e.target,t=+el.dataset.count,suf=el.dataset.suffix||'';let c=0;const step=t/45;
+      (function up(){c+=step;if(c<t){el.textContent=Math.floor(c)+suf;requestAnimationFrame(up);}else el.textContent=t+suf;})();
+      cio.unobserve(el);
+    }
+  }),{threshold:.6});
+  document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+
+  /* ── Hero : entrée des mots (robuste) ── */
+  function heroIn(){
+    const words=document.querySelectorAll('#heroTitle .word');
+    words.forEach((w,i)=>setTimeout(()=>{w.style.transition='opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1),filter .8s';w.style.opacity=1;w.style.transform='none';w.style.filter='none';},120+i*100));
+    setTimeout(()=>{const s=document.getElementById('heroSub');s.style.transition='opacity .9s,transform .9s';s.style.opacity=1;s.style.transform='none';},120+words.length*100);
+    setTimeout(()=>{const c=document.getElementById('heroCta');c.style.transition='opacity .9s,transform .9s';c.style.opacity=1;c.style.transform='none';},220+words.length*100);
+  }
+  if(document.readyState==='complete') heroIn(); else addEventListener('load',heroIn);
+
+  /* ── Barre de progression + parallax léger + nav ── */
+  const prog=document.getElementById('prog'), navEl=document.getElementById('nav');
+  const parEls=[...document.querySelectorAll('[data-par]')];
+  let lastY=0, ticking=false;
+  function frame(){
+    const y=scrollY, h=document.documentElement.scrollHeight-innerHeight;
+    prog.style.transform='scaleX('+(h>0?y/h:0)+')';
+    navEl.classList.toggle('hidden', y>lastY && y>260); lastY=y;
+    if(!reduce){
+      const vh=innerHeight;
+      parEls.forEach(el=>{
+        const r=el.getBoundingClientRect(); const center=r.top+r.height/2;
+        const off=(center-vh/2)/vh; // -0.5 → 0.5 environ
+        el.style.transform='translateY('+(off*-(+el.dataset.par)*vh).toFixed(1)+'px)';
+      });
+    }
+    ticking=false;
+  }
+  addEventListener('scroll',()=>{ if(!ticking){ticking=true;requestAnimationFrame(frame);} },{passive:true});
+  addEventListener('resize',()=>{ if(!ticking){ticking=true;requestAnimationFrame(frame);} },{passive:true});
+  frame();
+})();
+
+function handleSubmit(e){
+  e.preventDefault();
+  const btn=document.getElementById('submitBtn'),txt=document.getElementById('btnText'),arrow=document.getElementById('btnArrow'),spin=document.getElementById('btnSpinner');
+  btn.disabled=true;txt.textContent='Envoi en cours…';arrow.style.display='none';spin.style.display='inline';
+  setTimeout(()=>{txt.textContent='Message envoyé !';spin.style.display='none';btn.style.background='linear-gradient(135deg,#34C759,#16A34A)';},1600);
+}
+</script>
+</body>
+</html>
