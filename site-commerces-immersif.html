@@ -11,13 +11,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ════════════════════════════════════════════════════════════════
-   BOOST AVIS — Landing narrative en 6 SCÈNES distinctes (scroll vertical)
-   + 7e zone "implantée" (marketing classique).  Direction sombre → chaud.
-   100% CSS/JS natif. Chaque scène se révèle à l'entrée (IntersectionObserver).
+   BOOST AVIS — Landing narrative.  Layout TIMELINE ZIGZAG :
+   chaque scène = [ numéro encadré ] ↔ [ illustration + animation ],
+   côté alterné à chaque étape.  7e zone implantée (marketing).
+   100% CSS/JS natif. Révélation à l'entrée (IntersectionObserver).
    ════════════════════════════════════════════════════════════════ */
 :root{
   --black:#0B0A07;--cream:#F5EDD8;--cream3:#FBF6EE;
-  --green:#3E7A1A;--green-name:#3f7d22;--green-dk:#1C3A0E;--green-deep:#112808;
+  --green:#3E7A1A;--green-dk:#1C3A0E;--green-deep:#112808;
   --gold:#C8963E;--gold2:#E2B25A;--gold3:#F5D07A;
   --ink:#1A1A14;--muted:#A8A29E;--muted2:#8B857E;
   --green-txt:#34C759;--line:rgba(255,255,255,.09);
@@ -73,31 +74,48 @@ nav.hidden{transform:translateX(-50%) translateY(-160%)}
 .story::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23s)'/%3E%3C/svg%3E");background-size:150px 150px}
 
-.scene{position:relative;z-index:2;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:80px 24px;text-align:center;overflow:hidden}
+.scene{position:relative;z-index:2;min-height:100svh;display:flex;align-items:center;justify-content:center;padding:84px clamp(16px,4vw,48px);overflow:hidden}
 .scene-glow{position:absolute;width:520px;height:520px;border-radius:50%;pointer-events:none;filter:blur(20px);opacity:.8}
 .g-gold{background:radial-gradient(circle,rgba(212,168,67,.14),transparent 62%)}
 .g-green{background:radial-gradient(circle,rgba(80,170,40,.16),transparent 62%)}
 
-.scene-num{position:absolute;top:clamp(40px,7vh,80px);left:50%;transform:translateX(-50%);font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(90px,20vw,200px);line-height:1;color:rgba(245,237,216,.05);pointer-events:none;user-select:none}
+/* Deux zones alternées : visuel d'un côté, texte de l'autre → lecture en S */
+.scene-row{position:relative;z-index:3;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(22px,5vw,76px);width:min(1060px,100%)}
+.scene-viz{position:relative;display:grid;place-items:center;min-width:0;grid-column:1;grid-row:1}
+.scene-viz>*{max-width:100%}
+.copy{position:relative;min-width:0;max-width:42ch;grid-column:2;grid-row:1;text-align:left;justify-self:start}
+.scene.alt .scene-viz{grid-column:2}
+.scene.alt .copy{grid-column:1;text-align:right;justify-self:end}
+.copy .num{display:block;font-family:'Fraunces',serif;font-style:italic;font-weight:300;line-height:.8;font-size:clamp(44px,7vw,92px);margin-bottom:4px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold3));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.copy .ico{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold2);margin-bottom:12px}
+.scene.alt .copy .ico{flex-direction:row-reverse}
+.copy .ico svg{width:15px;height:15px}
+.copy h2{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(24px,4.2vw,46px);line-height:1.07;letter-spacing:-.02em;color:var(--cream)}
+.copy h2 em{font-style:italic;color:var(--gold2)}
+.copy p{font-size:clamp(13px,1.7vw,16px);color:var(--muted);line-height:1.62;margin-top:12px}
 
-.scene-stage{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;gap:26px;width:min(560px,100%)}
-.cap{max-width:30ch}
-.cap .step{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold2);margin-bottom:12px;display:flex;align-items:center;gap:10px;justify-content:center}
-.cap .step::before,.cap .step::after{content:'';width:20px;height:1px;background:rgba(212,168,67,.4)}
-.cap h2{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(26px,5vw,46px);line-height:1.08;letter-spacing:-.02em}
-.cap h2 em{font-style:italic;color:var(--gold2)}
-.cap p{font-size:clamp(14px,1.8vw,16px);color:var(--muted);line-height:1.6;margin-top:12px;max-width:42ch;margin-inline:auto}
+/* Tilt 3D léger des supports (profondeur premium) */
+.scene-viz .device{transform:perspective(1300px) rotateY(8deg)}
+.scene.alt .scene-viz .device{transform:perspective(1300px) rotateY(-8deg)}
+
+/* ── CONNECTEURS diagonaux entre scènes : le fil du parcours ── */
+.connector{position:relative;z-index:3;height:clamp(92px,14vh,150px);margin:clamp(-44px,-6vh,-24px) 0;pointer-events:none;overflow:hidden}
+.connector .line{position:absolute;inset:0;width:100%;height:100%}
+.connector .line path{fill:none;stroke:rgba(212,168,67,.5);stroke-width:1.6;stroke-dasharray:1 7;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.connector .knob{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:8px;
+  background:rgba(12,11,8,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(212,168,67,.3);border-radius:99px;padding:6px 13px;white-space:nowrap}
+.connector .knob svg{width:15px;height:15px;color:var(--gold2);flex-shrink:0}
+.connector .knob span{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,237,216,.62)}
 
 /* — Révélation à l'entrée — */
 .r{opacity:0;transform:translateY(34px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1)}
-.scene.in .r,.in>.r{opacity:1;transform:none}
-.r.d1{transition-delay:.1s}.r.d2{transition-delay:.2s}.r.d3{transition-delay:.3s}
+.scene.in .r{opacity:1;transform:none}
+.r.d1{transition-delay:.1s}.r.d2{transition-delay:.22s}.r.d3{transition-delay:.34s}
 
 /* ══════════════ CARTE NFC (portrait ~2×5 cm, d'après la vraie carte) ══════════════ */
-.nfc{position:relative;width:clamp(150px,40vw,196px);aspect-ratio:2/4.6;border-radius:14px;
-  background:linear-gradient(170deg,#15140e 0%,#0b0a07 55%,#100f0a 100%);
-  border:1px solid rgba(212,168,67,.45);
+.nfc{position:relative;width:clamp(150px,40vw,190px);aspect-ratio:2/4.6;border-radius:14px;
+  background:linear-gradient(170deg,#15140e 0%,#0b0a07 55%,#100f0a 100%);border:1px solid rgba(212,168,67,.45);
   box-shadow:0 26px 64px rgba(0,0,0,.6),0 0 40px rgba(212,168,67,.14),inset 0 1px 0 rgba(255,255,255,.07);
   padding:15px 13px 13px;display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--cream);overflow:hidden}
 .nfc::before{content:'';position:absolute;inset:0;border-radius:14px;pointer-events:none;background:radial-gradient(120% 60% at 20% 6%,rgba(255,255,255,.08),transparent 42%)}
@@ -106,7 +124,7 @@ nav.hidden{transform:translateX(-50%) translateY(-160%)}
 .nfc-stars{color:var(--gold2);font-size:9px;letter-spacing:2.5px;margin:7px 0 5px}
 .nfc-slogan{font-family:'Fraunces',serif;font-style:italic;font-size:10px;color:var(--gold2);opacity:.85;margin-bottom:11px;position:relative;padding-top:7px}
 .nfc-slogan::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:30px;height:1px;background:rgba(212,168,67,.4)}
-.nfc-ring{width:clamp(52px,15vw,68px);height:clamp(52px,15vw,68px);border-radius:50%;border:1.5px solid rgba(212,168,67,.55);display:grid;place-items:center;color:var(--gold2);margin-bottom:9px}
+.nfc-ring{width:clamp(52px,15vw,66px);height:clamp(52px,15vw,66px);border-radius:50%;border:1.5px solid rgba(212,168,67,.55);display:grid;place-items:center;color:var(--gold2);margin-bottom:9px}
 .nfc-ring svg{width:54%;height:54%}
 .nfc-approach{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--cream)}
 .nfc-approach span{display:block;font-size:8px;font-weight:600;letter-spacing:.14em;color:var(--muted);margin-top:2px}
@@ -116,53 +134,39 @@ nav.hidden{transform:translateX(-50%) translateY(-160%)}
 .nfc-offer b span{display:block;font-size:7.5px;font-weight:600;color:var(--muted);letter-spacing:.1em}
 .nfc-foot{margin-top:auto;padding-top:10px;font-size:9px;font-weight:700;letter-spacing:.16em;color:rgba(245,237,216,.78);text-transform:uppercase}
 .nfc-foot::before{content:'❦';display:block;color:rgba(212,168,67,.45);font-size:9px;margin-bottom:5px}
-/* flottement doux + lueur sous la carte */
 .nfc-wrap{position:relative;display:grid;place-items:center}
 .nfc-wrap::after{content:'';position:absolute;bottom:-26px;width:60%;height:24px;border-radius:50%;background:rgba(0,0,0,.5);filter:blur(12px);z-index:-1}
 .float{animation:float 5s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-12px) rotate(2deg)}}
-
-/* — pictos d'ondes (scan) — */
-.tap{position:relative;display:grid;place-items:center;gap:18px}
-.tap-waves{position:absolute;right:-6px;top:50%;transform:translateY(-50%)}
-.scan-pulse{position:absolute;inset:-18px;border-radius:18px;border:1.5px solid rgba(52,199,89,.4)}
+.scan-pulse{position:absolute;inset:-16px;border-radius:20px;border:1.5px solid rgba(52,199,89,.45)}
 .scene.in .scan-pulse{animation:scan 2.2s ease-out infinite}
-@keyframes scan{0%{transform:scale(.85);opacity:.7}100%{transform:scale(1.25);opacity:0}}
+@keyframes scan{0%{transform:scale(.85);opacity:.7}100%{transform:scale(1.3);opacity:0}}
 
 /* ══════════════ TÉLÉPHONE ══════════════ */
-.device{position:relative;width:clamp(220px,62vw,272px);aspect-ratio:9/19;border-radius:36px;background:linear-gradient(160deg,#15130f,#080705);padding:8px;border:1px solid rgba(255,255,255,.1);box-shadow:0 46px 90px rgba(0,0,0,.6),inset 0 0 0 5px #000}
-.device::before{content:'';position:absolute;top:13px;left:50%;transform:translateX(-50%);width:74px;height:6px;border-radius:99px;background:#000;z-index:5}
+.device{position:relative;width:clamp(200px,56vw,264px);max-width:100%;aspect-ratio:9/19;border-radius:36px;background:linear-gradient(160deg,#15130f,#080705);padding:8px;border:1px solid rgba(255,255,255,.1);box-shadow:0 46px 90px rgba(0,0,0,.6),inset 0 0 0 5px #000}
+.device::before{content:'';position:absolute;top:13px;left:50%;transform:translateX(-50%);width:72px;height:6px;border-radius:99px;background:#000;z-index:5}
 .screen{position:relative;width:100%;height:100%;border-radius:29px;overflow:hidden;background:#3E7A1A}
 .gbg{position:absolute;inset:0;background:#3E7A1A;background-image:radial-gradient(ellipse 80% 55% at 25% 22%,rgba(120,200,45,.5),transparent 58%),radial-gradient(ellipse 55% 65% at 82% 78%,rgba(20,75,5,.6),transparent 52%)}
-.scr-pad{position:relative;z-index:1;padding:20px 15px;display:flex;flex-direction:column;height:100%;color:var(--cream)}
-
-.cl-name{font-family:'Fraunces',serif;font-style:italic;font-size:12px;text-align:center;margin-bottom:6px}
-.cl-stars{text-align:center;color:var(--gold3);letter-spacing:3px;font-size:13px;margin-bottom:13px}
-.cl-card{background:rgba(251,246,238,.97);border-radius:16px;padding:15px 13px;text-align:center;box-shadow:0 12px 26px rgba(0,0,0,.26)}
-.cl-card .t{font-family:'Fraunces',serif;font-size:15px;color:var(--ink);font-weight:600;margin-bottom:5px}
-.cl-card .t em{font-style:italic;color:var(--gold)}
-.cl-card .d{font-size:10px;color:var(--muted2);line-height:1.5;margin-bottom:12px}
-.cl-btn{display:block;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--ink);font-weight:700;font-size:11px;padding:10px;border-radius:10px}
 
 .rw{position:absolute;inset:0;display:grid;place-items:center;padding:18px}
 .rw-card{width:100%;background:rgba(251,246,238,.97);border-radius:16px;padding:20px 15px;text-align:center;box-shadow:0 14px 30px rgba(0,0,0,.3)}
 .rw-emo{font-size:46px;margin-bottom:8px;display:block}
-.scene.in .rw-emo{animation:pop .6s .25s cubic-bezier(.34,1.56,.64,1) both}
+.scene.in .rw-emo{animation:pop .6s .3s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes pop{0%{transform:scale(0) rotate(-12deg)}100%{transform:scale(1)}}
 .rw-badge{display:inline-block;background:rgba(200,150,62,.12);border:1px solid rgba(200,150,62,.3);color:var(--gold);font-size:8.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 11px;border-radius:99px;margin-bottom:8px}
 .rw-name{font-family:'Fraunces',serif;font-size:17px;color:var(--ink);margin-bottom:12px}
 .rw-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--ink);font-weight:700;font-size:11px;padding:10px;border-radius:10px}
 
 /* chip avis flottant (scène 3) */
-.chip{position:absolute;display:flex;align-items:center;gap:8px;background:rgba(20,18,14,.92);border:1px solid rgba(212,168,67,.3);border-radius:14px;padding:9px 13px;box-shadow:0 16px 36px rgba(0,0,0,.45);backdrop-filter:blur(6px)}
-.chip svg{width:18px;height:18px;color:#1a73e8}
-.chip .x{font-size:11px;line-height:1.2}
+.chip{position:absolute;top:4%;right:-10px;display:flex;align-items:center;gap:8px;background:rgba(20,18,14,.94);border:1px solid rgba(212,168,67,.3);border-radius:14px;padding:9px 13px;box-shadow:0 16px 36px rgba(0,0,0,.45)}
+.chip svg{width:18px;height:18px}
+.chip .x{font-size:11px;line-height:1.2;text-align:left}
 .chip .x b{display:block;color:var(--cream);font-weight:700}
 .chip .x i{color:var(--gold3);font-style:normal;letter-spacing:1px;font-size:10px}
 
 /* validation vendeur (scène 4) */
-.vendor{width:min(330px,86vw);background:rgba(18,16,12,.92);border:1px solid rgba(245,237,216,.12);border-radius:20px;padding:22px 20px;box-shadow:0 36px 80px rgba(0,0,0,.55)}
-.vendor .vh{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.vendor{width:100%;max-width:330px;background:rgba(18,16,12,.92);border:1px solid rgba(245,237,216,.12);border-radius:20px;padding:22px 20px;box-shadow:0 36px 80px rgba(0,0,0,.55)}
+.vendor .vh{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;text-align:center}
 .vcode{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
 .vcode span{width:32px;height:42px;border-radius:9px;background:rgba(245,237,216,.06);border:1px solid rgba(245,237,216,.14);display:grid;place-items:center;font-family:'DM Mono',monospace;font-size:19px;font-weight:500;color:var(--cream)}
 .vok{display:flex;align-items:center;justify-content:center;gap:9px;padding:12px;border-radius:12px;background:rgba(52,199,89,.12);border:1px solid rgba(52,199,89,.35);color:var(--green-txt);font-weight:700;font-size:13.5px}
@@ -175,8 +179,7 @@ nav.hidden{transform:translateX(-50%) translateY(-160%)}
 .fid-count{text-align:center;font-family:'Fraunces',serif;font-weight:600;font-size:38px;color:var(--gold3);line-height:1}
 .fid-count span{font-size:19px;color:rgba(245,237,216,.5)}
 .fid-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:15px}
-.st{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;background:rgba(245,237,216,.07);border:1.5px dashed rgba(200,150,62,.4);color:rgba(245,237,216,.5);
-  transition:background .4s ease,border-color .4s ease,transform .4s ease}
+.st{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;background:rgba(245,237,216,.07);border:1.5px dashed rgba(200,150,62,.4);color:rgba(245,237,216,.5);transition:background .4s ease,border-color .4s ease,transform .4s ease}
 .st.full{background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold3));border-style:solid;border-color:transparent;box-shadow:0 3px 9px rgba(200,150,62,.4)}
 .st.full::after{content:'🥐';font-size:13px;filter:saturate(0) brightness(2.6)}
 .st.rw2{border:2px solid var(--gold);background:rgba(200,150,62,.12)}
@@ -204,18 +207,9 @@ nav.hidden{transform:translateX(-50%) translateY(-160%)}
 .scene.in .bar .fl{width:var(--w)}
 .bar .n{font-size:11px;font-weight:700;color:#fff;min-width:18px;text-align:right}
 
-/* halo derrière le device */
 .halo{position:absolute;width:118%;height:118%;left:-9%;top:-9%;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(212,168,67,.16),transparent 60%);filter:blur(8px)}
 
-/* ══════════════ INTERLUDES (illustrations entre les scènes) ══════════════ */
-.interlude{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 24px 12px;color:var(--gold2)}
-.interlude::before{content:'';width:1px;height:46px;background:linear-gradient(rgba(212,168,67,0),rgba(212,168,67,.5));margin-bottom:4px}
-.interlude::after{content:'';width:1px;height:46px;background:linear-gradient(rgba(212,168,67,.5),rgba(212,168,67,0));margin-top:4px}
-.il-ic{width:38px;height:38px;display:grid;place-items:center;border:1px solid rgba(212,168,67,.3);border-radius:50%;background:rgba(212,168,67,.06)}
-.il-ic svg{width:20px;height:20px}
-.il-txt{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,237,216,.5)}
-
-/* ══════════════ ZONE 7 — IMPLANTÉE (marketing classique) ══════════════ */
+/* ══════════════ ZONE 7 — IMPLANTÉE DANS LE SITE (marketing) ══════════════ */
 .warm{position:relative;z-index:2;background:linear-gradient(180deg,#2d5a12 0%,#1f4310 40%,#112808 100%)}
 .warm::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.5;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23w)'/%3E%3C/svg%3E");background-size:170px 170px}
@@ -281,12 +275,26 @@ footer{position:relative;z-index:2;border-top:1px solid rgba(245,237,216,.1);pad
 footer p{font-size:13px;color:rgba(245,237,216,.5)}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* — Tablette/mobile : colonne, visuel en haut, texte dessous, léger décalage alterné — */
+@media(max-width:780px){
+  .scene{min-height:auto;padding:62px clamp(14px,5vw,28px)}
+  .scene-row{grid-template-columns:1fr;gap:24px;width:min(440px,92%)}
+  .scene .scene-viz,.scene.alt .scene-viz{grid-column:1;grid-row:1}
+  .scene .copy,.scene.alt .copy{grid-column:1;grid-row:2;text-align:center;max-width:none;justify-self:stretch}
+  .copy .ico,.scene.alt .copy .ico{justify-content:center;flex-direction:row}
+  /* décalage gauche/droite alterné, sans débordement (bloc 92% + marge auto) */
+  .scene:not(.alt) .scene-row{margin-right:auto;margin-left:0}
+  .scene.alt .scene-row{margin-left:auto;margin-right:0}
+  /* pas de tilt 3D sur petit écran */
+  .scene-viz .device,.scene.alt .scene-viz .device{transform:none}
+  .connector{height:84px;margin:-12px 0}
+}
+
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important}
   .r,.reveal{opacity:1!important;transform:none!important;transition:none!important}
   .hero h1 .word,.hero .sub,.hero-cta{opacity:1!important;transform:none!important;filter:none!important}
   .bar .fl{width:var(--w)!important}
-  .scroll-snap{scroll-snap-type:none}
 }
 </style>
 </head>
@@ -318,146 +326,136 @@ footer p{font-size:13px;color:rgba(245,237,216,.5)}
   <div class="hero-scroll" aria-hidden="true"><span>Défiler</span><span class="ln"></span></div>
 </header>
 
-<!-- ════════ STORY : 6 SCÈNES ════════ -->
+<!-- ════════ STORY : 6 SCÈNES EN ZIGZAG (lecture en S) ════════ -->
 <main class="story" id="story">
 
-  <!-- SCÈNE 1 -->
+  <!-- SCÈNE 1 — visuel à GAUCHE, texte à droite -->
   <section class="scene" id="s1" aria-label="Temps 1 : la carte est remise en caisse">
-    <div class="scene-glow g-gold" style="top:18%;left:50%;transform:translateX(-50%)"></div>
-    <div class="scene-num">1</div>
-    <div class="scene-stage">
-      <div class="nfc-wrap r" data-par="0.04">
-        <div class="nfc float">
+    <div class="scene-glow g-gold" style="top:18%;left:34%"></div>
+    <div class="scene-row">
+      <div class="scene-viz r d1" data-par="0.05">
+        <div class="nfc-wrap"><div class="nfc float">
           <svg class="nfc-wheat" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8"/><path d="M12 8c0-2 1.5-4 4-4 0 2-1.5 4-4 4z"/><path d="M12 8c0-2-1.5-4-4-4 0 2 1.5 4 4 4z"/><path d="M12 13c0-2 1.5-3.5 4-3.5 0 2-1.5 3.5-4 3.5z"/><path d="M12 13c0-2-1.5-3.5-4-3.5 0 2 1.5 3.5 4 3.5z"/></svg>
           <div class="nfc-name">VOTRE<br>COMMERCE</div>
           <div class="nfc-stars">★★★★★</div>
           <div class="nfc-slogan">Votre avis compte</div>
-          <div class="nfc-ring">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="8" height="15" rx="1.6"/><path d="M11 15h.01"/><path d="M18 7a5 5 0 0 1 0 7"/><path d="M20.5 5a8 8 0 0 1 0 11"/></svg>
-          </div>
+          <div class="nfc-ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="8" height="15" rx="1.6"/><path d="M11 15h.01"/><path d="M18 7a5 5 0 0 1 0 7"/><path d="M20.5 5a8 8 0 0 1 0 11"/></svg></div>
           <div class="nfc-approach">APPROCHEZ<span>VOTRE TÉLÉPHONE</span></div>
-          <div class="nfc-offer">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14c0-3 3-5 7-5s7 2 7 5"/><path d="M3 14h18l-1.5 5h-15z"/></svg>
-            <b>1 GOURMANDISE<span>OFFERTE</span></b>
-          </div>
+          <div class="nfc-offer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14c0-3 3-5 7-5s7 2 7 5"/><path d="M3 14h18l-1.5 5h-15z"/></svg><b>1 GOURMANDISE<span>OFFERTE</span></b></div>
           <div class="nfc-foot">Boulangerie · NFC</div>
-        </div>
+        </div></div>
       </div>
-      <div class="cap">
-        <div class="step r d1">Temps 1</div>
-        <h2 class="r d1">Tout commence <em>en caisse.</em></h2>
-        <p class="r d2">Le client achète sa baguette. Le boulanger lui remet une petite carte NFC — le début de l'expérience Boost Avis.</p>
-      </div>
-    </div>
-  </section>
-
-  <div class="interlude" aria-hidden="true">
-    <div class="il-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15 15 4a3 3 0 0 1 4 4L8 19c-1.5 1.5-4 1.5-4 1.5s0-2.5 0-4z"/><path d="M9 9l6 6"/></svg></div>
-    <div class="il-txt">Glissée dans le sachet</div>
-  </div>
-
-  <!-- SCÈNE 2 -->
-  <section class="scene" id="s2" aria-label="Temps 2 : le scan">
-    <div class="scene-glow g-gold" style="top:50%;left:50%;transform:translate(-50%,-50%)"></div>
-    <div class="scene-num">2</div>
-    <div class="scene-stage">
-      <div class="tap r" data-par="0.05">
-        <div class="nfc-wrap">
-          <div class="nfc float" style="transform:scale(.92)">
-            <svg class="nfc-wheat" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8"/><path d="M12 8c0-2 1.5-4 4-4 0 2-1.5 4-4 4z"/><path d="M12 8c0-2-1.5-4-4-4 0 2 1.5 4 4 4z"/></svg>
-            <div class="nfc-name">VOTRE<br>COMMERCE</div>
-            <div class="nfc-stars">★★★★★</div>
-            <div class="nfc-ring" style="margin-top:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="8" height="15" rx="1.6"/><path d="M11 15h.01"/><path d="M18 7a5 5 0 0 1 0 7"/></svg></div>
-            <div class="nfc-approach" style="margin-top:8px">APPROCHEZ<span>VOTRE TÉLÉPHONE</span></div>
-            <div class="nfc-foot">Boulangerie · NFC</div>
-            <div class="scan-pulse"></div>
-          </div>
-        </div>
-      </div>
-      <div class="cap">
-        <div class="step r d1">Temps 2</div>
-        <h2 class="r d1">Un simple <em>geste.</em></h2>
-        <p class="r d2">Il approche son téléphone de la carte. Pas d'application, pas de friction — un contact suffit à tout déclencher.</p>
+      <div class="copy r d2">
+        <span class="num">1</span>
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8"/><path d="M12 8c0-2 1.5-4 4-4 0 2-1.5 4-4 4z"/><path d="M12 8c0-2-1.5-4-4-4 0 2 1.5 4 4 4z"/></svg> En caisse</span>
+        <h2>Tout commence <em>en caisse.</em></h2>
+        <p>Le client achète sa baguette. Le boulanger lui remet une petite carte NFC — le début de l'expérience Boost Avis.</p>
       </div>
     </div>
   </section>
 
-  <div class="interlude" aria-hidden="true">
-    <div class="il-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0 1 14 0"/><path d="M8.5 12a3.5 3.5 0 0 1 7 0"/><circle cx="12" cy="12" r="1"/></svg></div>
-    <div class="il-txt">Connexion instantanée</div>
+  <div class="connector" aria-hidden="true">
+    <svg class="line" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M8 6 C 40 40 60 62 92 94"/></svg>
+    <span class="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12l-1 6H7z"/><path d="M5 8h14l1 12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg><span>Glissée dans le sachet</span></span>
   </div>
 
-  <!-- SCÈNE 3 -->
+  <!-- SCÈNE 2 — visuel à DROITE, texte à gauche -->
+  <section class="scene alt" id="s2" aria-label="Temps 2 : le scan">
+    <div class="scene-glow g-gold" style="top:50%;left:66%"></div>
+    <div class="scene-row">
+      <div class="scene-viz r d1" data-par="0.06">
+        <div class="nfc-wrap"><div class="nfc float">
+          <svg class="nfc-wheat" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8"/><path d="M12 8c0-2 1.5-4 4-4 0 2-1.5 4-4 4z"/><path d="M12 8c0-2-1.5-4-4-4 0 2 1.5 4 4 4z"/></svg>
+          <div class="nfc-name">VOTRE<br>COMMERCE</div>
+          <div class="nfc-stars">★★★★★</div>
+          <div class="nfc-ring" style="margin-top:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="8" height="15" rx="1.6"/><path d="M11 15h.01"/><path d="M18 7a5 5 0 0 1 0 7"/></svg></div>
+          <div class="nfc-approach" style="margin-top:8px">APPROCHEZ<span>VOTRE TÉLÉPHONE</span></div>
+          <div class="nfc-foot">Boulangerie · NFC</div>
+          <div class="scan-pulse"></div>
+        </div></div>
+      </div>
+      <div class="copy r d2">
+        <span class="num">2</span>
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0 1 14 0"/><path d="M8.5 12a3.5 3.5 0 0 1 7 0"/><circle cx="12" cy="12" r="1"/></svg> Sans contact</span>
+        <h2>Un simple <em>geste.</em></h2>
+        <p>Il approche son téléphone de la carte. Pas d'application, pas de friction — un contact suffit à tout déclencher.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="connector" aria-hidden="true">
+    <svg class="line" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M92 6 C 60 40 40 62 8 94"/></svg>
+    <span class="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0 1 14 0"/><path d="M8.5 12a3.5 3.5 0 0 1 7 0"/><circle cx="12" cy="12" r="1"/></svg><span>Un contact suffit</span></span>
+  </div>
+
+  <!-- SCÈNE 3 — visuel à GAUCHE -->
   <section class="scene" id="s3" aria-label="Temps 3 : avis et récompense">
-    <div class="scene-glow g-green" style="top:46%;left:50%;transform:translate(-50%,-50%)"></div>
-    <div class="scene-num">3</div>
-    <div class="scene-stage">
-      <div class="r" data-par="0.04" style="position:relative">
+    <div class="scene-glow g-green" style="top:48%;left:34%"></div>
+    <div class="scene-row">
+      <div class="scene-viz r d1" data-par="0.05">
         <div class="device">
           <div class="halo"></div>
-          <div class="screen">
-            <div class="gbg"></div>
-            <div class="rw">
-              <div class="rw-card">
-                <span class="rw-emo">🥐</span>
-                <span class="rw-badge">Vous avez gagné</span>
-                <div class="rw-name">Croissant Artisanal</div>
-                <div class="rw-btn">Récupérer mon gain</div>
-              </div>
-            </div>
+          <div class="screen"><div class="gbg"></div>
+            <div class="rw"><div class="rw-card">
+              <span class="rw-emo">🥐</span>
+              <span class="rw-badge">Vous avez gagné</span>
+              <div class="rw-name">Croissant Artisanal</div>
+              <div class="rw-btn">Récupérer mon gain</div>
+            </div></div>
           </div>
         </div>
-        <div class="chip r d2" style="top:8%;right:-8px">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7H7.9v-2.9h2.54V9.85c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7C18.34 21.21 22 17.06 22 12.06z" fill="#1a73e8"/></svg>
+        <div class="chip">
+          <svg viewBox="0 0 24 24"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7H7.9v-2.9h2.54V9.85c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7C18.34 21.21 22 17.06 22 12.06z" fill="#1a73e8"/></svg>
           <div class="x"><b>Avis publié</b><i>★★★★★ sur Google</i></div>
         </div>
       </div>
-      <div class="cap">
-        <div class="step r d1">Temps 3</div>
-        <h2 class="r d1">Un avis, <em>une récompense.</em></h2>
-        <p class="r d2">Sur son téléphone : il laisse un avis Google, ouvre son cadeau et gagne un croissant. Le sourire en plus.</p>
+      <div class="copy r d2">
+        <span class="num">3</span>
+        <span class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 6.9L22 9.2l-5.5 4.7L18.2 21 12 17l-6.2 4 1.7-7.1L2 9.2l7.4-.3z"/></svg> Avis &amp; cadeau</span>
+        <h2>Un avis, <em>une récompense.</em></h2>
+        <p>Sur son téléphone : il laisse un avis Google, ouvre son cadeau et gagne un croissant. Le sourire en plus.</p>
       </div>
     </div>
   </section>
 
-  <div class="interlude" aria-hidden="true">
-    <div class="il-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 11h18"/><path d="M12 8V5a2 2 0 0 0-2-2H9"/><path d="M12 8V5a2 2 0 0 1 2-2h1"/></svg></div>
-    <div class="il-txt">Quelques jours plus tard…</div>
+  <div class="connector" aria-hidden="true">
+    <svg class="line" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M8 6 C 40 40 60 62 92 94"/></svg>
+    <span class="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Quelques jours plus tard</span></span>
   </div>
 
-  <!-- SCÈNE 4 -->
-  <section class="scene" id="s4" aria-label="Temps 4 : validation en caisse">
-    <div class="scene-glow g-green" style="top:50%;left:50%;transform:translate(-50%,-50%)"></div>
-    <div class="scene-num">4</div>
-    <div class="scene-stage">
-      <div class="vendor r" data-par="0.03">
-        <div class="vh">Validation en caisse</div>
-        <div class="vcode"><span>4</span><span>7</span><span>5</span><span>5</span><span>8</span><span>3</span></div>
-        <div class="vok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Gain validé · Croissant offert</div>
+  <!-- SCÈNE 4 — visuel à DROITE -->
+  <section class="scene alt" id="s4" aria-label="Temps 4 : validation en caisse">
+    <div class="scene-glow g-green" style="top:50%;left:66%"></div>
+    <div class="scene-row">
+      <div class="scene-viz r d1" data-par="0.04">
+        <div class="vendor">
+          <div class="vh">Validation en caisse</div>
+          <div class="vcode"><span>4</span><span>7</span><span>5</span><span>5</span><span>8</span><span>3</span></div>
+          <div class="vok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Gain validé · Croissant offert</div>
+        </div>
       </div>
-      <div class="cap">
-        <div class="step r d1">Temps 4</div>
-        <h2 class="r d1">Il revient. Vous <em>validez.</em></h2>
-        <p class="r d2">Il repasse en boutique. Vous entrez son code en caisse, vous offrez le gain — et sa carte re-scanne pour cumuler.</p>
+      <div class="copy r d2">
+        <span class="num">4</span>
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> En caisse</span>
+        <h2>Il revient. Vous <em>validez.</em></h2>
+        <p>Il repasse en boutique. Vous entrez son code en caisse, vous offrez le gain — et sa carte re-scanne pour cumuler.</p>
       </div>
     </div>
   </section>
 
-  <div class="interlude" aria-hidden="true">
-    <div class="il-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.6a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.07a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.85a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-    <div class="il-txt">La fidélité grandit</div>
+  <div class="connector" aria-hidden="true">
+    <svg class="line" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M92 6 C 60 40 40 62 8 94"/></svg>
+    <span class="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.6a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.07a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.85a5.5 5.5 0 0 0 0-7.78z"/></svg><span>La fidélité grandit</span></span>
   </div>
 
-  <!-- SCÈNE 5 -->
+  <!-- SCÈNE 5 — visuel à GAUCHE -->
   <section class="scene" id="s5" aria-label="Temps 5 : carte de fidélité">
-    <div class="scene-glow g-green" style="top:48%;left:50%;transform:translate(-50%,-50%)"></div>
-    <div class="scene-num">5</div>
-    <div class="scene-stage">
-      <div class="r" data-par="0.04" style="position:relative">
+    <div class="scene-glow g-green" style="top:48%;left:34%"></div>
+    <div class="scene-row">
+      <div class="scene-viz r d1" data-par="0.05">
         <div class="device">
           <div class="halo"></div>
-          <div class="screen">
-            <div class="gbg"></div>
+          <div class="screen"><div class="gbg"></div>
             <div class="fid">
               <div class="fid-h">Carte de fidélité</div>
               <div class="fid-sub">1 point par passage</div>
@@ -471,25 +469,25 @@ footer p{font-size:13px;color:rgba(245,237,216,.5)}
           </div>
         </div>
       </div>
-      <div class="cap">
-        <div class="step r d1">Temps 5</div>
-        <h2 class="r d1">La fidélité <em>se construit.</em></h2>
-        <p class="r d2">Un point à chaque passage. Au 10ᵉ, un cadeau l'attend. Il a, enfin, une vraie raison de revenir.</p>
+      <div class="copy r d2">
+        <span class="num">5</span>
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.6a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.07a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.85a5.5 5.5 0 0 0 0-7.78z"/></svg> Fidélité</span>
+        <h2>La fidélité <em>se construit.</em></h2>
+        <p>Un point à chaque passage. Au 10ᵉ, un cadeau l'attend. Il a, enfin, une vraie raison de revenir.</p>
       </div>
     </div>
   </section>
 
-  <div class="interlude" aria-hidden="true">
-    <div class="il-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></div>
-    <div class="il-txt">Côté commerçant</div>
+  <div class="connector" aria-hidden="true">
+    <svg class="line" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M8 6 C 40 40 60 62 92 94"/></svg>
+    <span class="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg><span>Côté commerçant</span></span>
   </div>
 
-  <!-- SCÈNE 6 -->
-  <section class="scene" id="s6" aria-label="Temps 6 : tableau de bord">
-    <div class="scene-glow g-gold" style="top:50%;left:50%;transform:translate(-50%,-50%)"></div>
-    <div class="scene-num">6</div>
-    <div class="scene-stage">
-      <div class="r" data-par="0.04" style="position:relative">
+  <!-- SCÈNE 6 — visuel à DROITE -->
+  <section class="scene alt" id="s6" aria-label="Temps 6 : tableau de bord">
+    <div class="scene-glow g-gold" style="top:50%;left:66%"></div>
+    <div class="scene-row">
+      <div class="scene-viz r d1" data-par="0.04">
         <div class="device">
           <div class="halo"></div>
           <div class="screen">
@@ -509,16 +507,17 @@ footer p{font-size:13px;color:rgba(245,237,216,.5)}
           </div>
         </div>
       </div>
-      <div class="cap">
-        <div class="step r d1">Temps 6</div>
-        <h2 class="r d1">Vous, <em>aux commandes.</em></h2>
-        <p class="r d2">Avis, passages, clients fidèles, gains distribués : votre tableau de bord suit tout, en direct, depuis votre téléphone.</p>
+      <div class="copy r d2">
+        <span class="num">6</span>
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg> Tableau de bord</span>
+        <h2>Vous, <em>aux commandes.</em></h2>
+        <p>Avis, passages, clients fidèles, gains distribués : votre tableau de bord suit tout, en direct, depuis votre téléphone.</p>
       </div>
     </div>
   </section>
 </main>
 
-<!-- ════════ ZONE 7 — IMPLANTÉE DANS LE SITE (pas de téléphone) ════════ -->
+<!-- ════════ ZONE 7 — IMPLANTÉE DANS LE SITE ════════ -->
 <div class="warm">
   <section class="block" style="text-align:center;padding-bottom:0">
     <div class="eyebrow reveal" style="justify-content:center">La fin de l'histoire, le début des résultats</div>
@@ -610,7 +609,7 @@ footer p{font-size:13px;color:rgba(245,237,216,.5)}
   /* ── Révélation des scènes à l'entrée ── */
   const sceneIO = new IntersectionObserver((es)=>{
     es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); if(e.target.id==='s5') fillFid(); sceneIO.unobserve(e.target); } });
-  },{threshold:.28});
+  },{threshold:.22});
   document.querySelectorAll('.scene').forEach(s=>sceneIO.observe(s));
 
   /* ── Révélation des blocs marketing ── */
@@ -633,7 +632,7 @@ footer p{font-size:13px;color:rgba(245,237,216,.5)}
         : 'Plus que <b>'+(10-n)+' passage'+((10-n)>1?'s':'')+'</b> avant votre cadeau';
       if(n<10) setTimeout(tick,260);
     };
-    setTimeout(tick,400);
+    setTimeout(tick,450);
   }
 
   /* ── Compteurs chiffrés ── */
@@ -665,11 +664,10 @@ footer p{font-size:13px;color:rgba(245,237,216,.5)}
     navEl.classList.toggle('hidden', y>lastY && y>260); lastY=y;
     if(!reduce){
       const vh=innerHeight;
-      parEls.forEach(el=>{
-        const r=el.getBoundingClientRect(); const center=r.top+r.height/2;
-        const off=(center-vh/2)/vh; // -0.5 → 0.5 environ
+      for(const el of parEls){
+        const rr=el.getBoundingClientRect(), c=rr.top+rr.height/2, off=(c-vh/2)/vh;
         el.style.transform='translateY('+(off*-(+el.dataset.par)*vh).toFixed(1)+'px)';
-      });
+      }
     }
     ticking=false;
   }
